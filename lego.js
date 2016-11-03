@@ -6,9 +6,41 @@
  */
 exports.isStar = true;
 
+function cloneObject(obj) {
+    var copy = {};
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) {
+            copy[attr] = clone(obj[attr]);
+        }
+    }
+
+    return copy;
+}
+
+function cloneArray(array) {
+    var copy = [];
+    for (var i = 0, len = array.length; i < len; i++) {
+        copy[i] = clone(array[i]);
+    }
+
+    return copy;
+}
+
+function clone(obj) {
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
+    if (obj instanceof Array) {
+        return cloneArray(obj);
+    }
+    if (obj instanceof Object) {
+        return cloneObject(obj);
+    }
+}
+
 exports.query = function (collection) {
-    var friends = collection.slice();
-    console.info(friends);
+    var friends = clone(collection);
+
     Array.from(arguments)
         .slice(1)
         .sort(function (a, b) {
@@ -67,7 +99,7 @@ exports.filterIn = function (property, values) {
 
 exports.sortBy = function (property, order) {
     var func = function (friends) {
-        friends.sort(function (a, b) {
+        friends = friends.sort(function (a, b) {
             if (a.hasOwnProperty(property) && b.hasOwnProperty(property)) {
                 return a[property] > b[property] ? 1 : -1;
             }
@@ -105,7 +137,6 @@ exports.format = function (property, formatter) {
 };
 
 exports.limit = function (count) {
-    console.info(count);
     var func = function (friends) {
         return friends.slice(0, count);
     };
