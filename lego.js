@@ -4,7 +4,7 @@
  * Сделано задание на звездочку
  * Реализованы методы or и and
  */
-exports.isStar = false;
+exports.isStar = true;
 
 exports.query = function (collection) {
     var friends = collection.slice();
@@ -67,17 +67,18 @@ exports.filterIn = function (property, values) {
 
 exports.sortBy = function (property, order) {
     var func = function (friends) {
-        return friends.sort(function (a, b) {
+        friends.sort(function (a, b) {
             if (a.hasOwnProperty(property) && b.hasOwnProperty(property)) {
-                if (order === 'desc') {
-                    return a[property] < b[property] ? 1 : -1;
-                }
-
                 return a[property] > b[property] ? 1 : -1;
             }
 
             return 0;
         });
+        if (order === 'desc') {
+            return friends.reverse();
+        }
+
+        return friends;
     };
 
     return {
