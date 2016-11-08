@@ -39,7 +39,7 @@ function clone(obj) {
 }
 
 exports.query = function (collection) {
-    var friends = clone(collection);
+    var cloneCollection = clone(collection);
 
     Array.from(arguments)
         .slice(1)
@@ -47,10 +47,10 @@ exports.query = function (collection) {
             return b.priority - a.priority;
         })
         .forEach(function (operator) {
-            friends = operator.func(friends);
+            cloneCollection = operator.func(cloneCollection);
         });
 
-    return friends;
+    return cloneCollection;
 };
 
 exports.select = function () {
@@ -98,19 +98,20 @@ exports.filterIn = function (property, values) {
 };
 
 exports.sortBy = function (property, order) {
-    var func = function (friends) {
-        friends = friends.sort(function (a, b) {
+    var func = function (collection) {
+        var cloneCollection = clone(collection);
+
+        return cloneCollection.sort(function (a, b) {
             if (a.hasOwnProperty(property) && b.hasOwnProperty(property)) {
+                if (order === 'desc') {
+                    return a[property] > b[property] ? -1 : 1;
+                }
+
                 return a[property] > b[property] ? 1 : -1;
             }
 
             return 0;
         });
-        if (order === 'desc') {
-            return friends.reverse();
-        }
-
-        return friends;
     };
 
     return {
@@ -120,14 +121,14 @@ exports.sortBy = function (property, order) {
 };
 
 exports.format = function (property, formatter) {
-    var func = function (friends) {
-        friends.forEach(function (friend) {
-            if (friend.hasOwnProperty(property)) {
-                friend[property] = formatter(friend[property]);
+    var func = function (collection) {
+        return collection.map(function (element) {
+            if (element.hasOwnProperty(property)) {
+                element[property] = formatter(element[property]);
             }
-        });
 
-        return friends;
+            return element;
+        });
     };
 
     return {
@@ -137,8 +138,10 @@ exports.format = function (property, formatter) {
 };
 
 exports.limit = function (count) {
-    var func = function (friends) {
-        return friends.slice(0, count);
+    var func = function (collection) {
+        var cloneCollection = clone(collection);
+
+        return cloneCollection.slice(0, count);
     };
 
     return {
