@@ -55,23 +55,21 @@ exports.query = function (collection) {
 
 exports.select = function () {
     var selectedFields = Array.from(arguments);
-    var func = function (friends) {
-        var friendsWithSelectedFields = friends.map(function (friend) {
-            var friendWithSelectedFields = {};
-            for (var property in friend) {
-                if (!friend.hasOwnProperty(property)) {
+    var func = function (collection) {
+        return collection.map(function (itemCollection) {
+            var collectionWithSelectedFields = {};
+            for (var property in itemCollection) {
+                if (!itemCollection.hasOwnProperty(property)) {
                     continue;
                 }
 
                 if (selectedFields.includes(property)) {
-                    friendWithSelectedFields[property] = friend[property];
+                    collectionWithSelectedFields[property] = itemCollection[property];
                 }
             }
 
-            return friendWithSelectedFields;
+            return collectionWithSelectedFields;
         });
-
-        return friendsWithSelectedFields;
     };
 
     return {
@@ -81,10 +79,10 @@ exports.select = function () {
 };
 
 exports.filterIn = function (property, values) {
-    var func = function (friends) {
-        return friends.filter(function (friend) {
-            if (friend.hasOwnProperty(property)) {
-                return values.includes(friend[property]);
+    var func = function (collection) {
+        return collection.filter(function (itemCollection) {
+            if (itemCollection.hasOwnProperty(property)) {
+                return values.includes(itemCollection[property]);
             }
 
             return false;
@@ -155,9 +153,9 @@ if (exports.isStar) {
     exports.or = function () {
         var conditions = Array.from(arguments);
         var func = function (collection) {
-            return collection.filter(function (condition) {
-                return conditions.some(function (conditionalTest) {
-                    return conditionalTest.func([condition]).length > 0;
+            return collection.filter(function (itemCollection) {
+                return conditions.some(function (conditional) {
+                    return conditional.func([itemCollection]).length;
                 });
             });
         };
@@ -171,9 +169,9 @@ if (exports.isStar) {
     exports.and = function () {
         var conditions = Array.from(arguments);
         var func = function (collection) {
-            return collection.filter(function (condition) {
-                return conditions.every(function (conditionalTest) {
-                    return conditionalTest.func([condition]).length > 0;
+            return collection.filter(function (itemCollection) {
+                return conditions.every(function (conditional) {
+                    return conditional.func([itemCollection]).length;
                 });
             });
         };
